@@ -1,4 +1,3 @@
-const modalController = AmaraStore.createModalController();
 const shopGrid = document.querySelector("#shop-grid");
 const filterButtons = document.querySelectorAll("#shop-filters .filter-pill");
 
@@ -10,7 +9,7 @@ function renderShop() {
       ? AmaraStore.getProducts()
       : AmaraStore.getProducts().filter((product) => product.category === activeFilter);
 
-  AmaraStore.bindProductGrid(shopGrid, products, modalController);
+  AmaraStore.bindProductGrid(shopGrid, products, null);
 }
 
 filterButtons.forEach((button) => {

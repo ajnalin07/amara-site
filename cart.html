@@ -43,17 +43,38 @@
 
         <section class="cart-layout">
           <div class="cart-list-wrap">
+            <div class="cart-toolbar">
+              <div>
+                <p class="eyebrow">Current Edit</p>
+                <h2>Your selected Amara pieces</h2>
+              </div>
+              <a class="text-link" href="./shop.html">Continue Shopping</a>
+            </div>
             <div id="cart-list"></div>
             <div class="empty-cart" id="empty-cart" hidden>
               <h2>Your cart is empty.</h2>
               <p>Start with the shop page and add a few signature pieces to see the full flow.</p>
               <a class="button button-primary" href="./shop.html">Shop Now</a>
             </div>
+
+            <section class="cart-recommendations" id="cart-recommendations">
+              <div class="section-heading compact-heading">
+                <div>
+                  <p class="eyebrow">You May Also Like</p>
+                  <h2>Keep building the edit</h2>
+                </div>
+              </div>
+              <div class="product-grid compact-grid" id="recommended-grid"></div>
+            </section>
           </div>
 
           <aside class="cart-summary">
             <p class="eyebrow">Order Summary</p>
-            <h2>Ready for the next step</h2>
+            <h2>Ready for checkout</h2>
+            <div class="summary-banner">
+              <strong id="shipping-message">Free shipping unlocks at $120</strong>
+              <span id="shipping-helper">Add more pieces to reach the free shipping threshold.</span>
+            </div>
             <div class="summary-row">
               <span>Items</span>
               <strong id="summary-items">0</strong>
@@ -63,18 +84,29 @@
               <strong id="summary-subtotal">$0</strong>
             </div>
             <div class="summary-row">
-              <span>Shipping</span>
-              <strong>Calculated later</strong>
+              <span>Estimated shipping</span>
+              <strong id="summary-shipping">$0</strong>
+            </div>
+            <div class="summary-row">
+              <span>Packaging</span>
+              <strong>Complimentary</strong>
             </div>
             <div class="summary-row total">
               <span>Estimated total</span>
               <strong id="summary-total">$0</strong>
             </div>
-            <button class="button button-primary" id="checkout-button" type="button">Proceed to Placeholder Checkout</button>
+            <div class="checkout-stack">
+              <a class="button button-primary" id="checkout-button" href="#" target="_blank" rel="noreferrer">Checkout on WhatsApp</a>
+              <a class="button button-secondary" id="email-order-button" href="#">Send Order by Email</a>
+            </div>
             <button class="button button-ghost" id="clear-cart" type="button">Clear Cart</button>
             <p class="cart-note">
-              Placeholder checkout only. Replace this later with Shopify, Razorpay, Stripe, or another live payment flow.
+              This checkout handoff currently sends the cart to Amara on WhatsApp or email. Later, we can replace this with Shopify, Razorpay, Stripe, or another payment gateway.
             </p>
+            <div class="summary-support">
+              <p><strong>Need help before checkout?</strong></p>
+              <p>Message Amara directly on WhatsApp for custom gifting, quantity requests, or delivery questions.</p>
+            </div>
           </aside>
         </section>
       </main>
@@ -86,6 +118,32 @@
         </div>
       </footer>
     </div>
+
+    <section class="product-modal" id="product-modal" aria-hidden="true">
+      <div class="overlay" data-close-modal></div>
+      <div class="product-modal-card">
+        <button class="icon-button product-modal-close" type="button" data-close-modal aria-label="Close">
+          ×
+        </button>
+        <div class="product-modal-media">
+          <img id="modal-image" alt="" />
+        </div>
+        <div class="product-modal-copy">
+          <p class="eyebrow" id="modal-category"></p>
+          <h2 id="modal-name"></h2>
+          <p class="modal-price" id="modal-price"></p>
+          <p class="modal-description" id="modal-description"></p>
+          <div class="modal-actions">
+            <button class="button button-primary" id="modal-add-cart" type="button">Add to Cart</button>
+            <a class="button button-secondary" id="modal-inquire" href="#">Inquire</a>
+          </div>
+          <div class="inquiry-box">
+            <strong>WhatsApp inquiry</strong>
+            <p id="modal-message"></p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <script src="./products.js"></script>
     <script src="./store.js"></script>

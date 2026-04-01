@@ -229,6 +229,24 @@ h3,
   gap: 12px;
 }
 
+.brand-ribbon {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.brand-ribbon span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--muted);
+  border: 1px solid rgba(73, 46, 35, 0.08);
+}
+
 .button,
 .filter-pill,
 .qty-stepper button,
@@ -335,6 +353,55 @@ h3,
 .hero-card h2 {
   margin: 0 0 10px;
   font-size: 2.2rem;
+}
+
+.collection-showcase,
+.merch-strip,
+.shop-guidance {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.collection-showcase,
+.shop-guidance {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.showcase-card,
+.merch-strip article,
+.shop-banner {
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  box-shadow: var(--shadow);
+}
+
+.showcase-card {
+  min-height: 260px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  color: #fffaf5;
+}
+
+.showcase-card h2,
+.shop-banner h2 {
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.95;
+}
+
+.showcase-card-sun {
+  background:
+    linear-gradient(180deg, transparent 18%, rgba(41, 24, 27, 0.58) 100%),
+    linear-gradient(135deg, #f3dc7d 0%, #d8ebb8 54%, #efc9df 100%);
+}
+
+.showcase-card-petal {
+  background:
+    linear-gradient(180deg, transparent 18%, rgba(40, 23, 32, 0.62) 100%),
+    linear-gradient(135deg, #efc9df 0%, #d6e5f0 52%, #f5e5b0 100%);
 }
 
 .section-block,
@@ -490,6 +557,53 @@ h3,
   gap: 24px;
 }
 
+.merch-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.merch-strip article,
+.shop-banner,
+.shop-guidance .info-card {
+  padding: 24px;
+  background: rgba(255, 250, 246, 0.72);
+}
+
+.merch-strip h3 {
+  margin: 0;
+  font-size: 1.8rem;
+  line-height: 1.02;
+}
+
+.shop-banner {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.shop-banner-copy p:last-child,
+.shop-banner-metrics span {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.shop-banner-metrics {
+  display: grid;
+  gap: 12px;
+}
+
+.shop-banner-metrics article {
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(73, 46, 35, 0.08);
+}
+
+.shop-banner-metrics strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
 .editorial-banner h2 {
   margin: 0;
   font-size: clamp(2.1rem, 4vw, 3rem);
@@ -545,6 +659,75 @@ h3,
   gap: 20px;
 }
 
+.product-page {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 24px;
+  padding: 30px;
+  margin-top: 24px;
+  border-radius: var(--radius-xl);
+  background: rgba(255, 250, 246, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  box-shadow: var(--shadow);
+}
+
+.product-page-media {
+  min-height: 520px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f4df94, #d8ebb8 36%, #efc7df 68%, #c6dff1);
+}
+
+.product-page-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-page-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+}
+
+.detail-price {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.detail-highlights {
+  display: grid;
+  gap: 12px;
+}
+
+.detail-highlights article,
+.detail-note {
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(73, 46, 35, 0.08);
+}
+
+.detail-highlights strong,
+.detail-note strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.detail-highlights span,
+.detail-note p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 .detail-list {
   margin: 0;
   padding-left: 18px;
@@ -561,6 +744,20 @@ h3,
 .cart-list-wrap {
   display: grid;
   gap: 14px;
+}
+
+.cart-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 4px 2px;
+}
+
+.cart-toolbar h2 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 0.98;
 }
 
 .cart-item,
@@ -586,6 +783,19 @@ h3,
   margin: 0 0 8px;
 }
 
+.cart-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.cart-item-meta span,
+.line-total {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .cart-item-actions {
   flex-direction: column;
   align-items: end;
@@ -608,6 +818,29 @@ h3,
   align-self: start;
 }
 
+.summary-banner,
+.summary-support,
+.cart-recommendations {
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(73, 46, 35, 0.08);
+}
+
+.summary-banner {
+  margin: 16px 0 8px;
+}
+
+.summary-banner strong,
+.summary-support strong {
+  display: block;
+}
+
+.summary-banner span,
+.summary-support p:last-child {
+  color: var(--muted);
+}
+
 .summary-row {
   padding: 14px 0;
   border-bottom: 1px solid var(--line);
@@ -621,6 +854,20 @@ h3,
   line-height: 1.7;
 }
 
+.checkout-stack {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.summary-support {
+  margin-top: 16px;
+}
+
+.summary-support p {
+  margin: 0;
+}
+
 .danger-link {
   color: #8f4b5d;
 }
@@ -628,6 +875,23 @@ h3,
 .empty-cart {
   grid-template-columns: 1fr;
   text-align: left;
+}
+
+.cart-recommendations {
+  margin-top: 8px;
+}
+
+.compact-heading {
+  margin-bottom: 14px;
+}
+
+.compact-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.is-disabled {
+  pointer-events: none;
+  opacity: 0.55;
 }
 
 .contact-layout {
@@ -760,19 +1024,24 @@ h3,
 
 @media (max-width: 1100px) {
   .hero-panel,
+  .collection-showcase,
   .editorial-banner,
+  .shop-banner,
   .cart-layout,
   .contact-layout,
   .story-layout,
+  .product-page,
   .product-modal-card {
     grid-template-columns: 1fr;
   }
 
   .hero-highlights,
   .brand-grid,
+  .merch-strip,
   .testimonial-grid,
   .contact-cards,
-  .product-grid {
+  .product-grid,
+  .compact-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -786,7 +1055,8 @@ h3,
   .site-header,
   .cta-panel,
   .site-footer,
-  .section-heading {
+  .section-heading,
+  .cart-toolbar {
     flex-direction: column;
     align-items: start;
   }
@@ -816,9 +1086,13 @@ h3,
 
   .hero-highlights,
   .brand-grid,
+  .collection-showcase,
+  .merch-strip,
+  .shop-guidance,
   .testimonial-grid,
   .contact-cards,
-  .product-grid {
+  .product-grid,
+  .compact-grid {
     grid-template-columns: 1fr;
   }
 

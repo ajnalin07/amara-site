@@ -38,10 +38,36 @@
       <main>
         <section class="page-hero page-hero-shop">
           <p class="eyebrow">Shop Amara</p>
-          <h1>Browse every visible piece in the current collection.</h1>
+          <h1>Browse signature totes, styled edits, and editorial collection stories.</h1>
           <p class="lead">
             Signature totes are available to add directly to cart. Editorial images stay in the shop to help the collection feel complete and merchandised.
           </p>
+        </section>
+
+        <section class="shop-banner">
+          <div class="shop-banner-copy">
+            <p class="eyebrow">Merchandising Notes</p>
+            <h2>Start with signature totes, then move into styled sets and collection imagery.</h2>
+            <p>
+              This structure helps Amara feel like a boutique brand with a point
+              of view instead of a plain product list. Totes are the main buy,
+              while editorial stories add aspiration and social context.
+            </p>
+          </div>
+          <div class="shop-banner-metrics">
+            <article>
+              <strong>Hero category</strong>
+              <span>Signature hand-dyed totes</span>
+            </article>
+            <article>
+              <strong>Average price feel</strong>
+              <span>Accessible boutique gifting</span>
+            </article>
+            <article>
+              <strong>Best for</strong>
+              <span>Festive gifting, personal use, custom sets</span>
+            </article>
+          </div>
         </section>
 
         <section class="section-block">
@@ -58,6 +84,23 @@
           </div>
           <div class="product-grid" id="shop-grid"></div>
         </section>
+
+        <section class="shop-guidance">
+          <article class="info-card">
+            <h3>Shopping Tip</h3>
+            <p>
+              If you are buying for gifting, start with the brighter signature
+              totes first. They communicate the Amara identity most clearly.
+            </p>
+          </article>
+          <article class="info-card">
+            <h3>Custom Requests</h3>
+            <p>
+              Use the contact page or WhatsApp order handoff for event gifting,
+              coordinated sets, or personalized quantity requests.
+            </p>
+          </article>
+        </section>
       </main>
 
       <footer class="site-footer">
@@ -73,32 +116,6 @@
         </div>
       </footer>
     </div>
-
-    <section class="product-modal" id="product-modal" aria-hidden="true">
-      <div class="overlay" data-close-modal></div>
-      <div class="product-modal-card">
-        <button class="icon-button product-modal-close" type="button" data-close-modal aria-label="Close">
-          ×
-        </button>
-        <div class="product-modal-media">
-          <img id="modal-image" alt="" />
-        </div>
-        <div class="product-modal-copy">
-          <p class="eyebrow" id="modal-category"></p>
-          <h2 id="modal-name"></h2>
-          <p class="modal-price" id="modal-price"></p>
-          <p class="modal-description" id="modal-description"></p>
-          <div class="modal-actions">
-            <button class="button button-primary" id="modal-add-cart" type="button">Add to Cart</button>
-            <a class="button button-secondary" id="modal-inquire" href="#">Inquire</a>
-          </div>
-          <div class="inquiry-box">
-            <strong>Placeholder contact</strong>
-            <p id="modal-message"></p>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <script src="./products.js"></script>
     <script src="./store.js"></script>

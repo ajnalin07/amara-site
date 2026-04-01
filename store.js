@@ -1,5 +1,8 @@
 (function () {
   const CART_KEY = "amara-cart-v1";
+  const AMARA_EMAIL = "garimabang18@gmail.com";
+  const AMARA_WHATSAPP = "918769081934";
+  const AMARA_INSTAGRAM = "https://www.instagram.com/garima_bang_/";
 
   function getProducts() {
     return window.AMARA_PRODUCTS || [];
@@ -7,6 +10,23 @@
 
   function findProduct(productId) {
     return getProducts().find((product) => product.id === Number(productId));
+  }
+
+  function findProductBySlug(slug) {
+    return getProducts().find((product) => product.slug === slug);
+  }
+
+  function getRelatedProducts(product, limit = 3) {
+    if (!product) {
+      return [];
+    }
+
+    const sameCategory = getProducts().filter(
+      (item) => item.id !== product.id && item.category === product.category
+    );
+    const fallback = getProducts().filter((item) => item.id !== product.id);
+
+    return [...sameCategory, ...fallback].slice(0, limit);
   }
 
   function formatPrice(price) {
@@ -119,19 +139,51 @@
   }
 
   function inquiryHref(product) {
+    const text = encodeURIComponent(inquiryText(product));
+    return `https://wa.me/${AMARA_WHATSAPP}?text=${text}`;
+  }
+
+  function inquiryEmailHref(product) {
     const subject = encodeURIComponent(`Amara inquiry: ${product.name}`);
     const body = encodeURIComponent(inquiryText(product));
-    return `mailto:hello@amara-placeholder.com?subject=${subject}&body=${body}`;
+    return `mailto:${AMARA_EMAIL}?subject=${subject}&body=${body}`;
+  }
+
+  function cartCheckoutText(cartItems) {
+    const lines = cartItems.map(
+      (item) => `- ${item.name} x ${item.quantity}${item.price != null ? ` (${formatPrice(item.price)})` : ""}`
+    );
+
+    return [
+      "Hello Amara, I would like to place an order for these pieces:",
+      "",
+      ...lines,
+      "",
+      `Estimated subtotal: ${formatPrice(getCartSubtotal())}`,
+      "",
+      "Please share availability, delivery timeline, and payment details.",
+    ].join("\n");
+  }
+
+  function cartWhatsAppHref(cartItems) {
+    return `https://wa.me/${AMARA_WHATSAPP}?text=${encodeURIComponent(cartCheckoutText(cartItems))}`;
+  }
+
+  function cartEmailHref(cartItems) {
+    const subject = encodeURIComponent("Amara order inquiry");
+    const body = encodeURIComponent(cartCheckoutText(cartItems));
+    return `mailto:${AMARA_EMAIL}?subject=${subject}&body=${body}`;
   }
 
   function productCardMarkup(product, options = {}) {
+    const detailLabel = product.purchasable ? "View Details" : "View Story";
     const actions = product.purchasable
       ? `
         <button class="button button-primary" data-action="add-cart" data-product-id="${product.id}" type="button">Add to Cart</button>
-        <button class="button button-secondary" data-action="quick-view" data-product-id="${product.id}" type="button">Quick View</button>
+        <a class="button button-secondary" href="./product.html?slug=${encodeURIComponent(product.slug)}">${detailLabel}</a>
       `
       : `
-        <button class="button button-primary" data-action="quick-view" data-product-id="${product.id}" type="button">View Story</button>
+        <a class="button button-primary" href="./product.html?slug=${encodeURIComponent(product.slug)}">${detailLabel}</a>
         <a class="button button-secondary" href="./contact.html">Ask About Custom Sets</a>
       `;
 
@@ -148,7 +200,7 @@
             ${label}
             <span class="product-price">${formatPrice(product.price)}</span>
           </div>
-          <h3 class="product-title">${product.name}</h3>
+          <h3 class="product-title"><a href="./product.html?slug=${encodeURIComponent(product.slug)}">${product.name}</a></h3>
           <p class="product-description">${product.description}</p>
           <div class="product-actions">
             ${actions}
@@ -165,17 +217,22 @@
       button.addEventListener("click", () => {
         addToCart(button.dataset.productId, 1);
         button.textContent = "Added";
-      });
-    });
-
-    grid.querySelectorAll('[data-action="quick-view"]').forEach((button) => {
-      button.addEventListener("click", () => {
-        const product = findProduct(button.dataset.productId);
-        if (product && modalController) {
-          modalController.open(product);
+        if (typeof options.afterAdd === "function") {
+          options.afterAdd(Number(button.dataset.productId));
         }
       });
     });
+
+    if (modalController) {
+      grid.querySelectorAll('[data-action="quick-view"]').forEach((button) => {
+        button.addEventListener("click", () => {
+          const product = findProduct(button.dataset.productId);
+          if (product) {
+            modalController.open(product);
+          }
+        });
+      });
+    }
   }
 
   function createModalController() {
@@ -211,6 +268,8 @@
       modalDescription.textContent = product.description;
       modalMessage.textContent = inquiryText(product);
       modalInquire.href = inquiryHref(product);
+      modalInquire.target = "_blank";
+      modalInquire.rel = "noreferrer";
 
       if (product.purchasable) {
         modalAddCart.hidden = false;
@@ -247,6 +306,8 @@
   window.AmaraStore = {
     getProducts,
     findProduct,
+    findProductBySlug,
+    getRelatedProducts,
     formatPrice,
     readCart,
     addToCart,
@@ -256,8 +317,17 @@
     getCartSubtotal,
     syncCartCount,
     inquiryHref,
+    inquiryEmailHref,
     inquiryText,
+    cartCheckoutText,
+    cartWhatsAppHref,
+    cartEmailHref,
     bindProductGrid,
     createModalController,
+    contact: {
+      email: AMARA_EMAIL,
+      whatsapp: AMARA_WHATSAPP,
+      instagram: AMARA_INSTAGRAM,
+    },
   };
 })();
