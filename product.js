@@ -15,9 +15,47 @@ if (!product) {
   const detailName = document.querySelector("#detail-name");
   const detailPrice = document.querySelector("#detail-price");
   const detailDescription = document.querySelector("#detail-description");
-  const detailAddCart = document.querySelector("#detail-add-cart");
+  const detailCartControls = document.querySelector("#detail-cart-controls");
   const detailWhatsApp = document.querySelector("#detail-whatsapp");
   const detailEmail = document.querySelector("#detail-email");
+
+  function renderDetailCartControls() {
+    if (!product.purchasable) {
+      detailCartControls.innerHTML = '<button class="button button-ghost is-disabled" type="button" disabled>Editorial Feature</button>';
+      return;
+    }
+
+    const quantity = AmaraStore.getCartItemQuantity(product.id);
+
+    if (quantity > 0) {
+      detailCartControls.innerHTML = `
+        <div class="detail-qty" data-product-id="${product.id}">
+          <button class="detail-qty-button" type="button" data-detail-change="-1" aria-label="Decrease quantity">−</button>
+          <div class="detail-qty-copy">
+            <strong>${quantity}</strong>
+            <span>in cart</span>
+          </div>
+          <button class="detail-qty-button" type="button" data-detail-change="1" aria-label="Increase quantity">+</button>
+        </div>
+      `;
+
+      detailCartControls.querySelectorAll("[data-detail-change]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const delta = Number(button.dataset.detailChange);
+          AmaraStore.updateCartQuantity(product.id, quantity + delta);
+          renderDetailCartControls();
+        });
+      });
+
+      return;
+    }
+
+    detailCartControls.innerHTML = '<button class="button button-primary" id="detail-add-cart" type="button">Add to Cart</button>';
+    detailCartControls.querySelector("#detail-add-cart").addEventListener("click", () => {
+      AmaraStore.addToCart(product.id, 1);
+      renderDetailCartControls();
+    });
+  }
 
   productPage.hidden = false;
   document.title = `${product.name} | Amara`;
@@ -30,17 +68,7 @@ if (!product) {
   detailDescription.textContent = product.description;
   detailWhatsApp.href = AmaraStore.inquiryHref(product);
   detailEmail.href = AmaraStore.inquiryEmailHref(product);
-
-  if (product.purchasable) {
-    detailAddCart.addEventListener("click", () => {
-      AmaraStore.addToCart(product.id, 1);
-      detailAddCart.textContent = "Added to Cart";
-    });
-  } else {
-    detailAddCart.textContent = "Editorial Feature";
-    detailAddCart.disabled = true;
-    detailAddCart.classList.add("is-disabled");
-  }
+  renderDetailCartControls();
 
   const relatedProducts = AmaraStore.getRelatedProducts(product, 3);
   relatedSection.hidden = relatedProducts.length === 0;

@@ -146,6 +146,7 @@ h3,
 .footer-copy,
 .lead,
 .product-description,
+.detail-points,
 .info-card p,
 .story-card p,
 .cart-note,
@@ -225,15 +226,15 @@ h3,
 .hero-copy h1,
 .page-hero h1 {
   margin: 0;
-  font-size: clamp(2.25rem, 4.9vw, 4rem);
-  line-height: 0.95;
-  max-width: 13ch;
+  font-size: clamp(1.9rem, 3.8vw, 3.15rem);
+  line-height: 0.98;
+  max-width: 11ch;
 }
 
 .lead {
-  max-width: 58ch;
-  line-height: 1.75;
-  font-size: 1rem;
+  max-width: 48ch;
+  line-height: 1.6;
+  font-size: 0.98rem;
 }
 
 .hero-actions,
@@ -438,7 +439,7 @@ h3,
 .contact-form,
 .cart-summary,
 .story-card {
-  padding: 30px;
+  padding: 26px;
 }
 
 .section-heading {
@@ -454,8 +455,8 @@ h3,
 .cart-summary h2,
 .cta-panel h2 {
   margin: 0;
-  font-size: clamp(1.95rem, 3.3vw, 2.7rem);
-  line-height: 0.98;
+  font-size: clamp(1.65rem, 2.7vw, 2.25rem);
+  line-height: 1;
 }
 
 .brand-grid,
@@ -474,8 +475,8 @@ h3,
 .product-title,
 .cart-item h2 {
   margin: 0 0 10px;
-  font-size: 1.7rem;
-  line-height: 1;
+  font-size: 1.35rem;
+  line-height: 1.02;
 }
 
 .product-grid {
@@ -485,6 +486,9 @@ h3,
 }
 
 .product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow: hidden;
   border-radius: 24px;
   background: rgba(255, 252, 249, 0.85);
@@ -494,7 +498,8 @@ h3,
 
 .product-visual {
   position: relative;
-  min-height: 260px;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
   background: linear-gradient(135deg, #f4df94, #d8ebb8 36%, #efc7df 68%, #c6dff1);
 }
 
@@ -518,6 +523,9 @@ h3,
 }
 
 .product-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   padding: 20px;
 }
 
@@ -540,7 +548,65 @@ h3,
 .product-actions {
   display: grid;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.inline-qty,
+.detail-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(73, 46, 35, 0.1);
+}
+
+.inline-qty {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.inline-qty-button,
+.detail-qty-button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(108, 93, 116, 0.1);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.inline-qty-count,
+.detail-qty-copy {
+  color: var(--text);
+  text-align: center;
+}
+
+.inline-qty-count {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.detail-qty-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 72px;
+  line-height: 1.1;
+}
+
+.detail-qty-copy strong {
+  font-size: 1rem;
+}
+
+.detail-qty-copy span {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 .filter-pills {
@@ -595,7 +661,7 @@ h3,
 .shop-banner-copy p:last-child,
 .shop-banner-metrics span {
   color: var(--muted);
-  line-height: 1.7;
+  line-height: 1.55;
 }
 
 .shop-banner-metrics {
@@ -642,6 +708,12 @@ h3,
   gap: 20px;
 }
 
+.site-footer-compact {
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 20px 24px;
+}
+
 .footer-brand {
   margin: 0;
   font-size: 1.7rem;
@@ -661,20 +733,34 @@ h3,
 .page-hero-cart,
 .page-hero-about,
 .page-hero-contact {
-  padding: 24px 28px;
+  padding: 20px 24px;
 }
 
 .page-hero {
   min-height: 0;
 }
 
+.page-hero .lead {
+  margin-bottom: 0;
+}
+
+.page-hero-shop,
+.page-hero-contact,
+.page-hero-about {
+  max-width: 860px;
+}
+
+.page-hero-cart {
+  max-width: 760px;
+}
+
 .page-hero-cart h1 {
-  font-size: clamp(2.05rem, 4.4vw, 3.5rem);
-  max-width: 12ch;
+  font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+  max-width: 9ch;
 }
 
 .page-hero-cart .lead {
-  max-width: 54ch;
+  max-width: 42ch;
 }
 
 .story-layout {
@@ -687,7 +773,7 @@ h3,
   display: grid;
   grid-template-columns: 0.95fr 1.05fr;
   gap: 24px;
-  padding: 30px;
+  padding: 24px;
   margin-top: 24px;
   border-radius: var(--radius-xl);
   background: rgba(255, 250, 246, 0.76);
@@ -711,13 +797,13 @@ h3,
 .product-page-copy {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  justify-content: center;
+  gap: 14px;
+  justify-content: flex-start;
 }
 
 .detail-price {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
@@ -725,31 +811,28 @@ h3,
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  align-items: center;
 }
 
-.detail-highlights {
-  display: grid;
-  gap: 12px;
+.detail-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.detail-highlights article,
-.detail-note {
-  padding: 18px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.78);
+.detail-points span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(73, 46, 35, 0.08);
+  font-size: 0.9rem;
 }
 
-.detail-highlights strong,
-.detail-note strong {
-  display: block;
-  margin-bottom: 8px;
-}
-
-.detail-highlights span,
-.detail-note p {
-  color: var(--muted);
-  line-height: 1.7;
+#detail-cart-controls {
+  display: inline-flex;
 }
 
 .detail-list {
@@ -904,6 +987,16 @@ h3,
   margin-top: 18px;
 }
 
+.cart-summary .button {
+  width: 100%;
+}
+
+.cart-summary .button-ghost {
+  width: auto;
+  min-width: 0;
+  align-self: flex-start;
+}
+
 .summary-support {
   margin-top: 16px;
 }
@@ -951,6 +1044,7 @@ h3,
 .contact-layout .contact-cards {
   grid-template-columns: 1fr;
   align-content: start;
+  gap: 14px;
 }
 
 .contact-layout .info-card {
@@ -958,7 +1052,7 @@ h3,
 }
 
 .contact-layout .info-card h3 {
-  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+  font-size: clamp(1.3rem, 2.1vw, 1.7rem);
 }
 
 .contact-layout .info-card p,
@@ -990,12 +1084,6 @@ h3,
 .form-row textarea {
   padding-top: 14px;
   min-height: 140px;
-}
-
-.site-footer-compact {
-  justify-content: flex-start;
-  align-items: start;
-  padding: 22px 26px;
 }
 
 .site-footer-compact .footer-copy {
@@ -1175,7 +1263,7 @@ h3,
 
   .hero-copy h1,
   .page-hero h1 {
-    font-size: clamp(2rem, 9vw, 2.9rem);
+    font-size: clamp(1.75rem, 8vw, 2.4rem);
     max-width: 100%;
   }
 

@@ -54,6 +54,11 @@
     return readCart().reduce((sum, item) => sum + item.quantity, 0);
   }
 
+  function getCartItemQuantity(productId) {
+    const entry = readCart().find((item) => item.id === Number(productId));
+    return entry ? entry.quantity : 0;
+  }
+
   function addToCart(productId, quantity = 1) {
     const product = findProduct(productId);
 
@@ -176,10 +181,23 @@
   }
 
   function productCardMarkup(product, options = {}) {
+    const quantity = product.purchasable ? getCartItemQuantity(product.id) : 0;
     const detailLabel = product.purchasable ? "View Details" : "View Story";
     const actions = product.purchasable
       ? `
+        ${
+          quantity > 0
+            ? `
+        <div class="inline-qty" data-product-id="${product.id}">
+          <button class="inline-qty-button" data-action="decrease-cart" data-product-id="${product.id}" type="button" aria-label="Decrease quantity">−</button>
+          <span class="inline-qty-count">${quantity} in cart</span>
+          <button class="inline-qty-button" data-action="increase-cart" data-product-id="${product.id}" type="button" aria-label="Increase quantity">+</button>
+        </div>
+        `
+            : `
         <button class="button button-primary" data-action="add-cart" data-product-id="${product.id}" type="button">Add to Cart</button>
+        `
+        }
         <a class="button button-secondary" href="./product.html?slug=${encodeURIComponent(product.slug)}">${detailLabel}</a>
       `
       : `
@@ -211,28 +229,54 @@
   }
 
   function bindProductGrid(grid, list, modalController, options = {}) {
-    grid.innerHTML = list.map((product) => productCardMarkup(product, options)).join("");
+    function render() {
+      grid.innerHTML = list.map((product) => productCardMarkup(product, options)).join("");
 
-    grid.querySelectorAll('[data-action="add-cart"]').forEach((button) => {
-      button.addEventListener("click", () => {
-        addToCart(button.dataset.productId, 1);
-        button.textContent = "Added";
-        if (typeof options.afterAdd === "function") {
-          options.afterAdd(Number(button.dataset.productId));
-        }
-      });
-    });
-
-    if (modalController) {
-      grid.querySelectorAll('[data-action="quick-view"]').forEach((button) => {
+      grid.querySelectorAll('[data-action="add-cart"]').forEach((button) => {
         button.addEventListener("click", () => {
-          const product = findProduct(button.dataset.productId);
-          if (product) {
-            modalController.open(product);
+          addToCart(button.dataset.productId, 1);
+          render();
+          if (typeof options.afterAdd === "function") {
+            options.afterAdd(Number(button.dataset.productId));
           }
         });
       });
+
+      grid.querySelectorAll('[data-action="increase-cart"]').forEach((button) => {
+        button.addEventListener("click", () => {
+          const productId = Number(button.dataset.productId);
+          updateCartQuantity(productId, getCartItemQuantity(productId) + 1);
+          render();
+          if (typeof options.afterAdd === "function") {
+            options.afterAdd(productId);
+          }
+        });
+      });
+
+      grid.querySelectorAll('[data-action="decrease-cart"]').forEach((button) => {
+        button.addEventListener("click", () => {
+          const productId = Number(button.dataset.productId);
+          updateCartQuantity(productId, getCartItemQuantity(productId) - 1);
+          render();
+          if (typeof options.afterAdd === "function") {
+            options.afterAdd(productId);
+          }
+        });
+      });
+
+      if (modalController) {
+        grid.querySelectorAll('[data-action="quick-view"]').forEach((button) => {
+          button.addEventListener("click", () => {
+            const product = findProduct(button.dataset.productId);
+            if (product) {
+              modalController.open(product);
+            }
+          });
+        });
+      }
     }
+
+    render();
   }
 
   function createModalController() {
@@ -315,6 +359,7 @@
     clearCart,
     getDetailedCart,
     getCartSubtotal,
+    getCartItemQuantity,
     syncCartCount,
     inquiryHref,
     inquiryEmailHref,
