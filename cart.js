@@ -88,13 +88,19 @@ function renderCartPage() {
         </div>
       </div>
       <div class="cart-item-actions">
-        <strong>${AmaraStore.formatPrice(item.price)}</strong>
+        <div class="cart-price-block">
+          <span class="cart-price-label">Each</span>
+          <strong>${AmaraStore.formatPrice(item.price)}</strong>
+        </div>
         <div class="qty-stepper">
           <button type="button" data-change="-1">−</button>
           <span>${item.quantity}</span>
           <button type="button" data-change="1">+</button>
         </div>
-        <span class="line-total">${AmaraStore.formatPrice(item.lineTotal)}</span>
+        <div class="cart-price-block">
+          <span class="cart-price-label">Subtotal</span>
+          <span class="line-total">${AmaraStore.formatPrice(item.lineTotal)}</span>
+        </div>
         <button class="text-link danger-link" type="button" data-remove="true">Remove</button>
       </div>
     `;
