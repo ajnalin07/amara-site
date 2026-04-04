@@ -62,44 +62,24 @@ if (!product) {
     const variant = exactVariant || (!customization.wording && !customization.colorPreference ? latestVariant : null);
     const quantity = variant ? variant.quantity : 0;
 
-    if (quantity > 0) {
-      detailCartControls.innerHTML = `
-        <div class="detail-qty" data-product-id="${product.id}">
-          <button class="detail-qty-button" type="button" data-detail-change="-1" aria-label="Decrease quantity">−</button>
-          <div class="detail-qty-copy">
-            <strong>${quantity}</strong>
-            <span>in cart</span>
-          </div>
-          <button class="detail-qty-button" type="button" data-detail-change="1" aria-label="Increase quantity">+</button>
+    const summaryMarkup =
+      totalQuantity > 0
+        ? `
+      <div class="detail-qty detail-qty-summary" data-product-id="${product.id}">
+        <div class="detail-qty-copy">
+          <strong>${exactVariant ? quantity : totalQuantity}</strong>
+          <span>${exactVariant ? "this version in cart" : "total in cart"}</span>
         </div>
-      `;
+        <a class="button button-secondary" href="./cart.html">Review Cart</a>
+      </div>
+    `
+        : "";
 
-      detailCartControls.querySelectorAll("[data-detail-change]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const delta = Number(button.dataset.detailChange);
-          AmaraStore.updateCartQuantity(variant.key, quantity + delta);
-          showFeedback("");
-          renderDetailCartControls();
-        });
-      });
+    detailCartControls.innerHTML = `
+      ${summaryMarkup}
+      <button class="button button-primary" id="detail-add-cart" type="button">Add to Cart</button>
+    `;
 
-      return;
-    }
-
-    if (totalQuantity > 0) {
-      detailCartControls.innerHTML = `
-        <div class="detail-qty detail-qty-summary" data-product-id="${product.id}">
-          <div class="detail-qty-copy">
-            <strong>${totalQuantity}</strong>
-            <span>total in cart</span>
-          </div>
-          <a class="button button-secondary" href="./cart.html">Review in Cart</a>
-        </div>
-      `;
-      return;
-    }
-
-    detailCartControls.innerHTML = '<button class="button button-primary" id="detail-add-cart" type="button">Add to Cart</button>';
     detailCartControls.querySelector("#detail-add-cart").addEventListener("click", () => {
       const customization = readCustomizationInput();
 

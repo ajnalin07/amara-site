@@ -363,13 +363,12 @@
             ? `
         <div class="inline-qty inline-qty-summary">
           <span class="inline-qty-count">${quantity} in cart</span>
-          <a class="inline-qty-link" href="./product.html?slug=${encodeURIComponent(product.slug)}">Edit custom details</a>
+          <a class="inline-qty-link" href="./cart.html">Review cart</a>
         </div>
         `
-            : `
-        <a class="button button-primary" href="./product.html?slug=${encodeURIComponent(product.slug)}">Customize & Add</a>
-        `
+            : ""
         }
+        <a class="button button-primary" href="./product.html?slug=${encodeURIComponent(product.slug)}">Customize & Add</a>
         <a class="button button-secondary" href="./product.html?slug=${encodeURIComponent(product.slug)}">${detailLabel}</a>
       `
       : `

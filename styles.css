@@ -925,7 +925,8 @@ h3,
 }
 
 #detail-cart-controls {
-  display: inline-flex;
+  display: grid;
+  gap: 10px;
 }
 
 .customization-panel {
