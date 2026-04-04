@@ -54,9 +54,12 @@ if (!product) {
     }
 
     const customization = readCustomizationInput();
-    const variant = customization.wording
+    const exactVariant = customization.wording
       ? AmaraStore.getCartVariant(product.id, customization)
       : null;
+    const latestVariant = AmaraStore.getLatestCartVariant(product.id);
+    const totalQuantity = AmaraStore.getCartItemQuantity(product.id);
+    const variant = exactVariant || (!customization.wording && !customization.colorPreference ? latestVariant : null);
     const quantity = variant ? variant.quantity : 0;
 
     if (quantity > 0) {
@@ -80,6 +83,19 @@ if (!product) {
         });
       });
 
+      return;
+    }
+
+    if (totalQuantity > 0) {
+      detailCartControls.innerHTML = `
+        <div class="detail-qty detail-qty-summary" data-product-id="${product.id}">
+          <div class="detail-qty-copy">
+            <strong>${totalQuantity}</strong>
+            <span>total in cart</span>
+          </div>
+          <a class="button button-secondary" href="./cart.html">Review in Cart</a>
+        </div>
+      `;
       return;
     }
 

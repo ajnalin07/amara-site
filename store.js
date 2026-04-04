@@ -71,6 +71,13 @@
     }
   }
 
+  function getUsableCart() {
+    return readCart().filter((item) => {
+      const product = findProduct(item.id);
+      return Boolean(product && product.purchasable && item.quantity > 0);
+    });
+  }
+
   function writeCart(cart) {
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
   }
@@ -96,11 +103,11 @@
   }
 
   function findCartEntryByKey(cartKey) {
-    return readCart().find((item) => item.key === cartKey) || null;
+    return getUsableCart().find((item) => item.key === cartKey) || null;
   }
 
   function findCartEntriesByProduct(productId) {
-    return readCart().filter((item) => item.id === Number(productId));
+    return getUsableCart().filter((item) => item.id === Number(productId));
   }
 
   function findCartEntry(productId, customization = null) {
@@ -114,7 +121,7 @@
   }
 
   function getCartCount() {
-    return readCart().reduce((sum, item) => sum + item.quantity, 0);
+    return getUsableCart().reduce((sum, item) => sum + item.quantity, 0);
   }
 
   function getCartItemQuantity(productId) {
@@ -124,6 +131,17 @@
   function getCartCustomization(productId) {
     const entry = findCartEntry(productId);
     return normalizeCustomization(entry?.customization);
+  }
+
+  function getLatestCartVariant(productId) {
+    const entry = findCartEntry(productId);
+    return entry
+      ? {
+          key: entry.key,
+          quantity: entry.quantity,
+          customization: normalizeCustomization(entry.customization),
+        }
+      : null;
   }
 
   function getCartVariant(productId, customization = {}) {
@@ -232,7 +250,7 @@
   }
 
   function getDetailedCart() {
-    return readCart()
+    return getUsableCart()
       .map((item) => {
         const product = findProduct(item.id);
         if (!product) {
@@ -502,6 +520,7 @@
     getCartItemQuantity,
     syncCartCount,
     getCartVariant,
+    getLatestCartVariant,
     inquiryHref,
     inquiryEmailHref,
     inquiryText,
