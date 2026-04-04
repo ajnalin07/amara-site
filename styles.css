@@ -779,6 +779,10 @@ h3,
   max-width: 560px;
 }
 
+.page-hero-cart[hidden] {
+  display: none !important;
+}
+
 .story-layout {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -889,11 +893,13 @@ h3,
   display: grid;
   grid-template-columns: 1.3fr 0.7fr;
   gap: 20px;
+  align-items: start;
 }
 
 .cart-list-wrap {
   display: grid;
   gap: 18px;
+  align-content: start;
 }
 
 .cart-toolbar {
@@ -1006,6 +1012,8 @@ h3,
 
 .cart-summary {
   align-self: start;
+  position: sticky;
+  top: 108px;
 }
 
 .summary-banner,
@@ -1093,7 +1101,7 @@ h3,
 }
 
 .cart-recommendations {
-  margin-top: 2px;
+  margin-top: 0;
 }
 
 .compact-heading {
@@ -1348,6 +1356,10 @@ h3,
 
   .cart-item {
     grid-template-columns: 1fr;
+  }
+
+  .cart-summary {
+    position: static;
   }
 
   .customization-grid {

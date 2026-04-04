@@ -15,6 +15,7 @@ const modalController = AmaraStore.createModalController();
 
 const FREE_SHIPPING_THRESHOLD = 120;
 const STANDARD_SHIPPING = 8;
+const cartHero = document.querySelector(".page-hero-cart");
 
 function escapeAttribute(value) {
   return String(value)
@@ -30,6 +31,13 @@ function calculateShipping(subtotal, itemCount) {
   }
 
   return subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING;
+}
+
+function getCustomization(item) {
+  return {
+    wording: String(item?.customization?.wording || "").trim(),
+    colorPreference: String(item?.customization?.colorPreference || "").trim(),
+  };
 }
 
 function updateRecommendations(items) {
@@ -56,10 +64,13 @@ function renderCartPage() {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const shipping = calculateShipping(subtotal, itemCount);
   const total = subtotal + shipping;
-  const hasMissingWording = items.some((item) => !item.customization?.wording);
+  const hasMissingWording = items.some((item) => !getCustomization(item).wording);
 
   emptyCart.hidden = items.length > 0;
   cartList.innerHTML = "";
+  if (cartHero) {
+    cartHero.hidden = items.length > 0;
+  }
   checkoutButton.classList.toggle("is-disabled", items.length === 0 || hasMissingWording);
   emailOrderButton.classList.toggle("is-disabled", items.length === 0 || hasMissingWording);
 
@@ -86,6 +97,7 @@ function renderCartPage() {
   }
 
   items.forEach((item) => {
+    const customization = getCustomization(item);
     const row = document.createElement("article");
     row.className = "cart-item";
     row.innerHTML = `
@@ -101,11 +113,11 @@ function renderCartPage() {
         <div class="cart-customization">
           <div class="form-row">
             <label for="wording-${item.id}">Preferred wording</label>
-            <input id="wording-${item.id}" data-wording-input type="text" maxlength="24" value="${escapeAttribute(item.customization.wording)}" placeholder="Required" />
+            <input id="wording-${item.id}" data-wording-input type="text" maxlength="24" value="${escapeAttribute(customization.wording)}" placeholder="Required" />
           </div>
           <div class="form-row">
             <label for="color-${item.id}">Colour preference</label>
-            <input id="color-${item.id}" data-color-input type="text" maxlength="40" value="${escapeAttribute(item.customization.colorPreference)}" placeholder="Optional" />
+            <input id="color-${item.id}" data-color-input type="text" maxlength="40" value="${escapeAttribute(customization.colorPreference)}" placeholder="Optional" />
           </div>
           <div class="cart-customization-actions">
             <button class="text-link" type="button" data-save-customization="true">Save details</button>
@@ -175,14 +187,14 @@ clearCartButton.addEventListener("click", () => {
 
 checkoutButton.addEventListener("click", (event) => {
   const items = AmaraStore.getDetailedCart();
-  if (items.length === 0 || items.some((item) => !item.customization?.wording)) {
+  if (items.length === 0 || items.some((item) => !getCustomization(item).wording)) {
     event.preventDefault();
   }
 });
 
 emailOrderButton.addEventListener("click", (event) => {
   const items = AmaraStore.getDetailedCart();
-  if (items.length === 0 || items.some((item) => !item.customization?.wording)) {
+  if (items.length === 0 || items.some((item) => !getCustomization(item).wording)) {
     event.preventDefault();
   }
 });
