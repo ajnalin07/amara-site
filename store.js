@@ -37,6 +37,18 @@
     return `$${price}`;
   }
 
+  function requiresCustomization(product) {
+    if (!product || !product.purchasable) {
+      return false;
+    }
+
+    if (typeof product.customizationRequired === "boolean") {
+      return product.customizationRequired;
+    }
+
+    return product.category !== "scarf";
+  }
+
   function readCart() {
     try {
       const parsed = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
@@ -129,8 +141,13 @@
     const product = findProduct(productId);
     const normalizedCustomization = normalizeCustomization(customization);
     const cartKey = createCartKey(productId, normalizedCustomization);
+    const customizationIsRequired = requiresCustomization(product);
 
-    if (!product || !product.purchasable || !normalizedCustomization.wording) {
+    if (
+      !product ||
+      !product.purchasable ||
+      (customizationIsRequired && !normalizedCustomization.wording)
+    ) {
       return;
     }
 
@@ -186,8 +203,9 @@
     }
 
     const normalizedCustomization = normalizeCustomization(customization);
+    const product = findProduct(cart[index].id);
 
-    if (!normalizedCustomization.wording) {
+    if (requiresCustomization(product) && !normalizedCustomization.wording) {
       return false;
     }
 
@@ -472,6 +490,7 @@
     findProductBySlug,
     getRelatedProducts,
     formatPrice,
+    requiresCustomization,
     readCart,
     getCartCustomization,
     addToCart,

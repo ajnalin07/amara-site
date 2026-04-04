@@ -42,6 +42,10 @@ function getCustomization(item) {
   };
 }
 
+function needsWording(item) {
+  return AmaraStore.requiresCustomization(item);
+}
+
 function showToast(message, tone = "success") {
   if (!toastStack) {
     return;
@@ -86,7 +90,7 @@ function renderCartPage() {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const shipping = calculateShipping(subtotal, itemCount);
   const total = subtotal + shipping;
-  const hasMissingWording = items.some((item) => !getCustomization(item).wording);
+  const hasMissingWording = items.some((item) => needsWording(item) && !getCustomization(item).wording);
 
   emptyCart.hidden = items.length > 0;
   cartList.innerHTML = "";
@@ -120,6 +124,7 @@ function renderCartPage() {
 
   items.forEach((item) => {
     const customization = getCustomization(item);
+    const wordingRequired = needsWording(item);
     const row = document.createElement("article");
     row.className = "cart-item";
     row.innerHTML = `
@@ -134,8 +139,8 @@ function renderCartPage() {
         </div>
         <div class="cart-customization">
           <div class="form-row">
-            <label for="wording-${item.id}">Preferred wording</label>
-            <input id="wording-${item.id}" data-wording-input type="text" maxlength="24" value="${escapeAttribute(customization.wording)}" placeholder="Required" />
+            <label for="wording-${item.id}">${wordingRequired ? "Preferred wording" : "Preferred wording (optional)"}</label>
+            <input id="wording-${item.id}" data-wording-input type="text" maxlength="24" value="${escapeAttribute(customization.wording)}" placeholder="${wordingRequired ? "Required" : "Optional"}" />
           </div>
           <div class="form-row">
             <label for="color-${item.id}">Colour preference</label>
@@ -185,10 +190,10 @@ function renderCartPage() {
       const saved = AmaraStore.updateCartCustomization(item.key, { wording, colorPreference });
 
       if (!saved) {
-        feedback.textContent = "Preferred wording is required.";
+        feedback.textContent = wordingRequired ? "Preferred wording is required." : "Could not save details.";
         feedback.classList.add("is-error");
         row.querySelector("[data-wording-input]").focus();
-        showToast("Preferred wording is required.", "error");
+        showToast(wordingRequired ? "Preferred wording is required." : "Could not save details.", "error");
         return;
       }
 
@@ -211,14 +216,14 @@ clearCartButton.addEventListener("click", () => {
 
 checkoutButton.addEventListener("click", (event) => {
   const items = AmaraStore.getDetailedCart();
-  if (items.length === 0 || items.some((item) => !getCustomization(item).wording)) {
+  if (items.length === 0 || items.some((item) => needsWording(item) && !getCustomization(item).wording)) {
     event.preventDefault();
   }
 });
 
 emailOrderButton.addEventListener("click", (event) => {
   const items = AmaraStore.getDetailedCart();
-  if (items.length === 0 || items.some((item) => !getCustomization(item).wording)) {
+  if (items.length === 0 || items.some((item) => needsWording(item) && !getCustomization(item).wording)) {
     event.preventDefault();
   }
 });

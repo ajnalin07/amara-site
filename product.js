@@ -22,6 +22,7 @@ if (!product) {
   const detailColor = document.querySelector("#detail-color");
   const detailSaveCustomization = document.querySelector("#detail-save-customization");
   const detailFeedback = document.querySelector("#detail-feedback");
+  const customizationRequired = AmaraStore.requiresCustomization(product);
 
   function readCustomizationInput() {
     return {
@@ -32,7 +33,7 @@ if (!product) {
 
   function updateInquiryLinks() {
     const customization = readCustomizationInput();
-    const hasWording = Boolean(customization.wording);
+    const hasWording = Boolean(customization.wording) || !customizationRequired;
 
     detailWhatsApp.href = hasWording ? AmaraStore.inquiryHref(product, customization) : "#";
     detailEmail.href = hasWording ? AmaraStore.inquiryEmailHref(product, customization) : "#";
@@ -86,7 +87,7 @@ if (!product) {
     detailCartControls.querySelector("#detail-add-cart").addEventListener("click", () => {
       const customization = readCustomizationInput();
 
-      if (!customization.wording) {
+      if (customizationRequired && !customization.wording) {
         showFeedback("Preferred wording is required before adding this piece.", true);
         detailWording.focus();
         return;
@@ -110,6 +111,16 @@ if (!product) {
   const existingCustomization = AmaraStore.getCartCustomization(product.id);
   detailWording.value = existingCustomization.wording;
   detailColor.value = existingCustomization.colorPreference;
+  detailWording.required = customizationRequired;
+  detailWording.placeholder = customizationRequired
+    ? "Name, initials, or short phrase"
+    : "Optional name, initials, or short phrase";
+  detailWording.previousElementSibling.textContent = customizationRequired
+    ? "Preferred wording"
+    : "Preferred wording (optional)";
+  detailSaveCustomization.textContent = customizationRequired
+    ? "Save personalisation"
+    : "Save preferences";
   updateInquiryLinks();
   renderDetailCartControls();
 
@@ -126,7 +137,7 @@ if (!product) {
   detailSaveCustomization.addEventListener("click", () => {
     const customization = readCustomizationInput();
 
-    if (!customization.wording) {
+    if (customizationRequired && !customization.wording) {
       showFeedback("Preferred wording is required before saving.", true);
       detailWording.focus();
       return;
@@ -150,7 +161,7 @@ if (!product) {
 
   [detailWhatsApp, detailEmail].forEach((link) => {
     link.addEventListener("click", (event) => {
-      if (!detailWording.value.trim()) {
+      if (customizationRequired && !detailWording.value.trim()) {
         event.preventDefault();
         showFeedback("Preferred wording is required before ordering.", true);
         detailWording.focus();
