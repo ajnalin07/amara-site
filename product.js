@@ -20,6 +20,7 @@ if (!product) {
   const detailEmail = document.querySelector("#detail-email");
   const detailWording = document.querySelector("#detail-wording");
   const detailColor = document.querySelector("#detail-color");
+  const colorPresetButtons = document.querySelectorAll("[data-color-preset]");
   const detailSaveCustomization = document.querySelector("#detail-save-customization");
   const detailFeedback = document.querySelector("#detail-feedback");
   const customizationRequired = AmaraStore.requiresCustomization(product);
@@ -39,6 +40,13 @@ if (!product) {
     detailEmail.href = hasWording ? AmaraStore.inquiryEmailHref(product, customization) : "#";
     detailWhatsApp.classList.toggle("is-disabled", !hasWording);
     detailEmail.classList.toggle("is-disabled", !hasWording);
+  }
+
+  function syncColorPresetState() {
+    const currentValue = detailColor.value.trim().toLowerCase();
+    colorPresetButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.colorPreset.trim().toLowerCase() === currentValue);
+    });
   }
 
   function showFeedback(message = "", isError = false) {
@@ -77,10 +85,13 @@ if (!product) {
 
     detailCartControls.innerHTML = `
       ${summaryMarkup}
-      <button class="button button-primary" id="detail-add-cart" type="button">Add to Cart</button>
+      <div class="detail-cart-buttons">
+        <button class="button button-primary" id="detail-add-cart" type="button">Add to Cart</button>
+        <button class="button button-secondary" id="detail-add-checkout" type="button">Add & Review</button>
+      </div>
     `;
 
-    detailCartControls.querySelector("#detail-add-cart").addEventListener("click", () => {
+    function handleAddToCart(goToCart = false) {
       const customization = readCustomizationInput();
 
       if (customizationRequired && !customization.wording) {
@@ -92,6 +103,16 @@ if (!product) {
       AmaraStore.addToCart(product.id, 1, customization);
       showFeedback("Customisation saved to cart.");
       renderDetailCartControls();
+      if (goToCart) {
+        window.location.href = "./cart.html";
+      }
+    }
+
+    detailCartControls.querySelector("#detail-add-cart").addEventListener("click", () => {
+      handleAddToCart(false);
+    });
+    detailCartControls.querySelector("#detail-add-checkout").addEventListener("click", () => {
+      handleAddToCart(true);
     });
   }
 
@@ -118,15 +139,26 @@ if (!product) {
     ? "Save personalisation"
     : "Save preferences";
   updateInquiryLinks();
+  syncColorPresetState();
   renderDetailCartControls();
 
   [detailWording, detailColor].forEach((field) => {
     field.addEventListener("input", () => {
       updateInquiryLinks();
+      syncColorPresetState();
       renderDetailCartControls();
       if (field === detailWording && detailWording.value.trim()) {
         showFeedback("");
       }
+    });
+  });
+
+  colorPresetButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      detailColor.value = button.dataset.colorPreset;
+      syncColorPresetState();
+      updateInquiryLinks();
+      renderDetailCartControls();
     });
   });
 

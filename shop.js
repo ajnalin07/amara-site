@@ -1,8 +1,9 @@
 const shopGrid = document.querySelector("#shop-grid");
 const shopEmpty = document.querySelector("#shop-empty");
 const filterButtons = document.querySelectorAll("#shop-filters .filter-pill");
+const params = new URLSearchParams(window.location.search);
 
-let activeFilter = "all";
+let activeFilter = params.get("line") || "all";
 
 function emptyStateMarkup(filter) {
   if (filter === "scarf") {
@@ -43,5 +44,13 @@ filterButtons.forEach((button) => {
     renderShop();
   });
 });
+
+const activeButton = Array.from(filterButtons).find((button) => button.dataset.filter === activeFilter);
+if (activeButton) {
+  filterButtons.forEach((item) => item.classList.remove("is-active"));
+  activeButton.classList.add("is-active");
+} else {
+  activeFilter = "all";
+}
 
 renderShop();
