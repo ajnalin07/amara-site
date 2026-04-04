@@ -16,6 +16,14 @@ const modalController = AmaraStore.createModalController();
 const FREE_SHIPPING_THRESHOLD = 120;
 const STANDARD_SHIPPING = 8;
 
+function escapeAttribute(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 function calculateShipping(subtotal, itemCount) {
   if (itemCount === 0) {
     return 0;
@@ -48,22 +56,26 @@ function renderCartPage() {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const shipping = calculateShipping(subtotal, itemCount);
   const total = subtotal + shipping;
+  const hasMissingWording = items.some((item) => !item.customization?.wording);
 
   emptyCart.hidden = items.length > 0;
   cartList.innerHTML = "";
-  checkoutButton.classList.toggle("is-disabled", items.length === 0);
-  emailOrderButton.classList.toggle("is-disabled", items.length === 0);
+  checkoutButton.classList.toggle("is-disabled", items.length === 0 || hasMissingWording);
+  emailOrderButton.classList.toggle("is-disabled", items.length === 0 || hasMissingWording);
 
   summaryItems.textContent = String(itemCount);
   summarySubtotal.textContent = AmaraStore.formatPrice(subtotal);
   summaryShipping.textContent = shipping === 0 ? "Free" : AmaraStore.formatPrice(shipping);
   summaryTotal.textContent = AmaraStore.formatPrice(total);
-  checkoutButton.href = items.length > 0 ? AmaraStore.cartWhatsAppHref(items) : "#";
-  emailOrderButton.href = items.length > 0 ? AmaraStore.cartEmailHref(items) : "#";
+  checkoutButton.href = items.length > 0 && !hasMissingWording ? AmaraStore.cartWhatsAppHref(items) : "#";
+  emailOrderButton.href = items.length > 0 && !hasMissingWording ? AmaraStore.cartEmailHref(items) : "#";
 
   if (items.length === 0) {
     shippingMessage.textContent = "Your cart is ready when you are";
     shippingHelper.textContent = "Add a few Amara pieces to see delivery and checkout details.";
+  } else if (hasMissingWording) {
+    shippingMessage.textContent = "Add wording for every piece";
+    shippingHelper.textContent = "Preferred wording is mandatory before checkout can continue.";
   } else if (shipping === 0) {
     shippingMessage.textContent = "Free shipping unlocked";
     shippingHelper.textContent = "Your order now qualifies for complimentary shipping.";
@@ -85,6 +97,20 @@ function renderCartPage() {
         <div class="cart-item-meta">
           <span>Hand-dyed boutique finish</span>
           <span>Order conversation available on WhatsApp</span>
+        </div>
+        <div class="cart-customization">
+          <div class="form-row">
+            <label for="wording-${item.id}">Preferred wording</label>
+            <input id="wording-${item.id}" data-wording-input type="text" maxlength="24" value="${escapeAttribute(item.customization.wording)}" placeholder="Required" />
+          </div>
+          <div class="form-row">
+            <label for="color-${item.id}">Colour preference</label>
+            <input id="color-${item.id}" data-color-input type="text" maxlength="40" value="${escapeAttribute(item.customization.colorPreference)}" placeholder="Optional" />
+          </div>
+          <div class="cart-customization-actions">
+            <button class="text-link" type="button" data-save-customization="true">Save details</button>
+            <span class="cart-customization-feedback" data-customization-feedback></span>
+          </div>
         </div>
       </div>
       <div class="cart-item-actions">
@@ -118,6 +144,24 @@ function renderCartPage() {
       renderCartPage();
     });
 
+    row.querySelector('[data-save-customization="true"]').addEventListener("click", () => {
+      const wording = row.querySelector("[data-wording-input]").value.trim();
+      const colorPreference = row.querySelector("[data-color-input]").value.trim();
+      const feedback = row.querySelector("[data-customization-feedback]");
+      const saved = AmaraStore.updateCartCustomization(item.id, { wording, colorPreference });
+
+      if (!saved) {
+        feedback.textContent = "Preferred wording is required.";
+        feedback.classList.add("is-error");
+        row.querySelector("[data-wording-input]").focus();
+        return;
+      }
+
+      feedback.textContent = "Saved";
+      feedback.classList.remove("is-error");
+      renderCartPage();
+    });
+
     cartList.appendChild(row);
   });
 
@@ -130,13 +174,15 @@ clearCartButton.addEventListener("click", () => {
 });
 
 checkoutButton.addEventListener("click", (event) => {
-  if (AmaraStore.getDetailedCart().length === 0) {
+  const items = AmaraStore.getDetailedCart();
+  if (items.length === 0 || items.some((item) => !item.customization?.wording)) {
     event.preventDefault();
   }
 });
 
 emailOrderButton.addEventListener("click", (event) => {
-  if (AmaraStore.getDetailedCart().length === 0) {
+  const items = AmaraStore.getDetailedCart();
+  if (items.length === 0 || items.some((item) => !item.customization?.wording)) {
     event.preventDefault();
   }
 });

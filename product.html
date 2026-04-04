@@ -52,6 +52,38 @@
               <span>Direct WhatsApp ordering</span>
             </div>
 
+            <div class="customization-panel">
+              <div class="section-heading compact-heading">
+                <div>
+                  <p class="eyebrow">Personalisation</p>
+                  <h2>Make it yours</h2>
+                </div>
+              </div>
+              <div class="customization-grid">
+                <div class="form-row">
+                  <label for="detail-wording">Preferred wording</label>
+                  <input
+                    id="detail-wording"
+                    name="detail-wording"
+                    maxlength="24"
+                    placeholder="Name, initials, or short phrase"
+                    required
+                  />
+                </div>
+                <div class="form-row">
+                  <label for="detail-color">Colour preference</label>
+                  <input
+                    id="detail-color"
+                    name="detail-color"
+                    maxlength="40"
+                    placeholder="Optional pastel or shade request"
+                  />
+                </div>
+              </div>
+              <button class="button button-ghost" id="detail-save-customization" type="button">Save personalisation</button>
+              <p class="form-feedback" id="detail-feedback"></p>
+            </div>
+
             <div class="detail-actions">
               <div id="detail-cart-controls"></div>
               <a class="button button-secondary" id="detail-whatsapp" href="#" target="_blank" rel="noreferrer">Order on WhatsApp</a>

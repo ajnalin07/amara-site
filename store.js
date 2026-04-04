@@ -50,19 +50,36 @@
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
   }
 
+  function normalizeCustomization(customization = {}) {
+    return {
+      wording: String(customization.wording || "").trim(),
+      colorPreference: String(customization.colorPreference || "").trim(),
+    };
+  }
+
+  function findCartEntry(productId) {
+    return readCart().find((item) => item.id === Number(productId)) || null;
+  }
+
   function getCartCount() {
     return readCart().reduce((sum, item) => sum + item.quantity, 0);
   }
 
   function getCartItemQuantity(productId) {
-    const entry = readCart().find((item) => item.id === Number(productId));
+    const entry = findCartEntry(productId);
     return entry ? entry.quantity : 0;
   }
 
-  function addToCart(productId, quantity = 1) {
-    const product = findProduct(productId);
+  function getCartCustomization(productId) {
+    const entry = findCartEntry(productId);
+    return normalizeCustomization(entry?.customization);
+  }
 
-    if (!product || !product.purchasable) {
+  function addToCart(productId, quantity = 1, customization = {}) {
+    const product = findProduct(productId);
+    const normalizedCustomization = normalizeCustomization(customization);
+
+    if (!product || !product.purchasable || !normalizedCustomization.wording) {
       return;
     }
 
@@ -71,8 +88,9 @@
 
     if (existing) {
       existing.quantity += quantity;
+      existing.customization = normalizedCustomization;
     } else {
-      cart.push({ id: product.id, quantity });
+      cart.push({ id: product.id, quantity, customization: normalizedCustomization });
     }
 
     writeCart(cart);
@@ -92,10 +110,31 @@
       cart.splice(index, 1);
     } else {
       cart[index].quantity = nextQuantity;
+      cart[index].customization = normalizeCustomization(cart[index].customization);
     }
 
     writeCart(cart);
     syncCartCount();
+  }
+
+  function updateCartCustomization(productId, customization = {}) {
+    const cart = readCart();
+    const index = cart.findIndex((item) => item.id === Number(productId));
+
+    if (index === -1) {
+      return false;
+    }
+
+    const normalizedCustomization = normalizeCustomization(customization);
+
+    if (!normalizedCustomization.wording) {
+      return false;
+    }
+
+    cart[index].customization = normalizedCustomization;
+    writeCart(cart);
+    syncCartCount();
+    return true;
   }
 
   function clearCart() {
@@ -114,6 +153,7 @@
         return {
           ...product,
           quantity: item.quantity,
+          customization: normalizeCustomization(item.customization),
           lineTotal: product.price == null ? null : product.price * item.quantity,
         };
       })
@@ -139,25 +179,50 @@
     });
   }
 
-  function inquiryText(product) {
-    return `Hello Amara, I would like details about ${product.name}${product.price != null ? ` (${formatPrice(product.price)})` : ""}. Please share availability, customization options, and next steps for ordering.`;
+  function buildCustomizationLines(customization = {}) {
+    const normalizedCustomization = normalizeCustomization(customization);
+    const lines = [];
+
+    if (normalizedCustomization.wording) {
+      lines.push(`Preferred wording: ${normalizedCustomization.wording}`);
+    }
+
+    if (normalizedCustomization.colorPreference) {
+      lines.push(`Color preference: ${normalizedCustomization.colorPreference}`);
+    }
+
+    return lines;
   }
 
-  function inquiryHref(product) {
-    const text = encodeURIComponent(inquiryText(product));
-    return `https://wa.me/${AMARA_WHATSAPP}?text=${text}`;
+  function inquiryText(product, customization = {}) {
+    return [
+      `Hello Amara, I would like details about ${product.name}${product.price != null ? ` (${formatPrice(product.price)})` : ""}.`,
+      ...buildCustomizationLines(customization),
+      "Please share availability, customization options, and next steps for ordering.",
+    ].join("\n");
   }
 
-  function inquiryEmailHref(product) {
+  function inquiryHref(product, customization = {}) {
+    const fullText = encodeURIComponent(inquiryText(product, customization));
+    return `https://wa.me/${AMARA_WHATSAPP}?text=${fullText}`;
+  }
+
+  function inquiryEmailHref(product, customization = {}) {
     const subject = encodeURIComponent(`Amara inquiry: ${product.name}`);
-    const body = encodeURIComponent(inquiryText(product));
+    const body = encodeURIComponent(inquiryText(product, customization));
     return `mailto:${AMARA_EMAIL}?subject=${subject}&body=${body}`;
   }
 
   function cartCheckoutText(cartItems) {
-    const lines = cartItems.map(
-      (item) => `- ${item.name} x ${item.quantity}${item.price != null ? ` (${formatPrice(item.price)})` : ""}`
-    );
+    const lines = cartItems.flatMap((item) => {
+      const itemLines = [
+        `- ${item.name} x ${item.quantity}${item.price != null ? ` (${formatPrice(item.price)})` : ""}`,
+      ];
+      buildCustomizationLines(item.customization).forEach((line) => {
+        itemLines.push(`  ${line}`);
+      });
+      return itemLines;
+    });
 
     return [
       "Hello Amara, I would like to place an order for these pieces:",
@@ -195,7 +260,7 @@
         </div>
         `
             : `
-        <button class="button button-primary" data-action="add-cart" data-product-id="${product.id}" type="button">Add to Cart</button>
+        <a class="button button-primary" href="./product.html?slug=${encodeURIComponent(product.slug)}">Customize & Add</a>
         `
         }
         <a class="button button-secondary" href="./product.html?slug=${encodeURIComponent(product.slug)}">${detailLabel}</a>
@@ -234,7 +299,7 @@
 
       grid.querySelectorAll('[data-action="add-cart"]').forEach((button) => {
         button.addEventListener("click", () => {
-          addToCart(button.dataset.productId, 1);
+          addToCart(button.dataset.productId, 1, getCartCustomization(button.dataset.productId));
           render();
           if (typeof options.afterAdd === "function") {
             options.afterAdd(Number(button.dataset.productId));
@@ -311,7 +376,7 @@
       modalPrice.textContent = formatPrice(product.price);
       modalDescription.textContent = product.description;
       modalMessage.textContent = inquiryText(product);
-      modalInquire.href = inquiryHref(product);
+      modalInquire.href = inquiryHref(product, getCartCustomization(product.id));
       modalInquire.target = "_blank";
       modalInquire.rel = "noreferrer";
 
@@ -336,7 +401,12 @@
         if (!activeProduct) {
           return;
         }
-        addToCart(activeProduct.id, 1);
+        const customization = getCartCustomization(activeProduct.id);
+        if (!customization.wording) {
+          modalAddCart.hidden = true;
+          return;
+        }
+        addToCart(activeProduct.id, 1, customization);
         modalAddCart.textContent = "Added";
       });
     }
@@ -354,8 +424,10 @@
     getRelatedProducts,
     formatPrice,
     readCart,
+    getCartCustomization,
     addToCart,
     updateCartQuantity,
+    updateCartCustomization,
     clearCart,
     getDetailedCart,
     getCartSubtotal,

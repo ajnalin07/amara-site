@@ -18,6 +18,29 @@ if (!product) {
   const detailCartControls = document.querySelector("#detail-cart-controls");
   const detailWhatsApp = document.querySelector("#detail-whatsapp");
   const detailEmail = document.querySelector("#detail-email");
+  const detailWording = document.querySelector("#detail-wording");
+  const detailColor = document.querySelector("#detail-color");
+  const detailSaveCustomization = document.querySelector("#detail-save-customization");
+  const detailFeedback = document.querySelector("#detail-feedback");
+
+  function readCustomizationInput() {
+    return {
+      wording: detailWording.value.trim(),
+      colorPreference: detailColor.value.trim(),
+    };
+  }
+
+  function updateInquiryLinks() {
+    const customization = readCustomizationInput();
+    detailWhatsApp.href = AmaraStore.inquiryHref(product, customization);
+    detailEmail.href = AmaraStore.inquiryEmailHref(product, customization);
+  }
+
+  function showFeedback(message = "", isError = false) {
+    detailFeedback.textContent = message;
+    detailFeedback.classList.toggle("is-error", Boolean(message && isError));
+    detailFeedback.classList.toggle("is-success", Boolean(message && !isError));
+  }
 
   function renderDetailCartControls() {
     if (!product.purchasable) {
@@ -43,6 +66,7 @@ if (!product) {
         button.addEventListener("click", () => {
           const delta = Number(button.dataset.detailChange);
           AmaraStore.updateCartQuantity(product.id, quantity + delta);
+          showFeedback("");
           renderDetailCartControls();
         });
       });
@@ -52,7 +76,16 @@ if (!product) {
 
     detailCartControls.innerHTML = '<button class="button button-primary" id="detail-add-cart" type="button">Add to Cart</button>';
     detailCartControls.querySelector("#detail-add-cart").addEventListener("click", () => {
-      AmaraStore.addToCart(product.id, 1);
+      const customization = readCustomizationInput();
+
+      if (!customization.wording) {
+        showFeedback("Preferred wording is required before adding this piece.", true);
+        detailWording.focus();
+        return;
+      }
+
+      AmaraStore.addToCart(product.id, 1, customization);
+      showFeedback("Customisation saved to cart.");
       renderDetailCartControls();
     });
   }
@@ -66,9 +99,40 @@ if (!product) {
   detailName.textContent = product.name;
   detailPrice.textContent = AmaraStore.formatPrice(product.price);
   detailDescription.textContent = product.description;
-  detailWhatsApp.href = AmaraStore.inquiryHref(product);
-  detailEmail.href = AmaraStore.inquiryEmailHref(product);
+  const existingCustomization = AmaraStore.getCartCustomization(product.id);
+  detailWording.value = existingCustomization.wording;
+  detailColor.value = existingCustomization.colorPreference;
+  updateInquiryLinks();
   renderDetailCartControls();
+
+  [detailWording, detailColor].forEach((field) => {
+    field.addEventListener("input", () => {
+      updateInquiryLinks();
+      if (field === detailWording && detailWording.value.trim()) {
+        showFeedback("");
+      }
+    });
+  });
+
+  detailSaveCustomization.addEventListener("click", () => {
+    const customization = readCustomizationInput();
+
+    if (!customization.wording) {
+      showFeedback("Preferred wording is required before saving.", true);
+      detailWording.focus();
+      return;
+    }
+
+    if (AmaraStore.getCartItemQuantity(product.id) > 0) {
+      AmaraStore.updateCartCustomization(product.id, customization);
+      showFeedback("Personalisation updated in cart.");
+      renderDetailCartControls();
+    } else {
+      showFeedback("Details saved for your inquiry. Add the piece to cart when ready.");
+    }
+
+    updateInquiryLinks();
+  });
 
   const relatedProducts = AmaraStore.getRelatedProducts(product, 3);
   relatedSection.hidden = relatedProducts.length === 0;
