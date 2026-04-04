@@ -1,3 +1,18 @@
+// Add new scarf products below using image paths from ./assets/scarves/.
+// Example:
+// {
+//   id: 13,
+//   slug: "rose-cloud-scarf",
+//   name: "Rose Cloud Scarf",
+//   category: "scarf",
+//   categoryLabel: "Custom Scarf",
+//   price: 28,
+//   tag: "New Line",
+//   description: "A lightweight hand-dyed scarf with soft pink and ivory transitions.",
+//   image: "./assets/scarves/your-photo-file.jpg",
+//   purchasable: true,
+// },
+
 window.AMARA_PRODUCTS = [
   {
     id: 1,

@@ -12,10 +12,12 @@ const shippingHelper = document.querySelector("#shipping-helper");
 const recommendedGrid = document.querySelector("#recommended-grid");
 const recommendationsSection = document.querySelector("#cart-recommendations");
 const modalController = AmaraStore.createModalController();
+const toastStack = document.querySelector("#toast-stack");
 
 const FREE_SHIPPING_THRESHOLD = 120;
 const STANDARD_SHIPPING = 8;
 const cartHero = document.querySelector(".page-hero-cart");
+let toastTimer = null;
 
 function escapeAttribute(value) {
   return String(value)
@@ -38,6 +40,26 @@ function getCustomization(item) {
     wording: String(item?.customization?.wording || "").trim(),
     colorPreference: String(item?.customization?.colorPreference || "").trim(),
   };
+}
+
+function showToast(message, tone = "success") {
+  if (!toastStack) {
+    return;
+  }
+
+  toastStack.innerHTML = `<div class="toast toast-${tone}" role="status">${message}</div>`;
+  toastStack.classList.add("is-visible");
+
+  if (toastTimer) {
+    clearTimeout(toastTimer);
+  }
+
+  toastTimer = window.setTimeout(() => {
+    toastStack.classList.remove("is-visible");
+    toastTimer = window.setTimeout(() => {
+      toastStack.innerHTML = "";
+    }, 220);
+  }, 2200);
 }
 
 function updateRecommendations(items) {
@@ -166,11 +188,13 @@ function renderCartPage() {
         feedback.textContent = "Preferred wording is required.";
         feedback.classList.add("is-error");
         row.querySelector("[data-wording-input]").focus();
+        showToast("Preferred wording is required.", "error");
         return;
       }
 
       feedback.textContent = "Saved";
       feedback.classList.remove("is-error");
+      showToast("Details saved to cart.");
       renderCartPage();
     });
 
