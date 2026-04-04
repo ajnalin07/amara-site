@@ -560,6 +560,7 @@ h3,
   display: grid;
   gap: 18px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
 }
 
 .step-card,
@@ -575,13 +576,16 @@ h3,
 .step-card,
 .occasion-card {
   padding: 22px;
+  min-height: 126px;
+  align-content: start;
 }
 
 .step-card h3,
 .occasion-card h3 {
   margin: 0;
-  font-size: 1.4rem;
-  line-height: 1.02;
+  font-size: clamp(1.18rem, 2vw, 1.55rem);
+  line-height: 1.08;
+  max-width: 16ch;
 }
 
 .step-card p,
