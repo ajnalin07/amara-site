@@ -57,8 +57,35 @@
     };
   }
 
-  function findCartEntry(productId) {
-    return readCart().find((item) => item.id === Number(productId)) || null;
+  function customizationSignature(productId, customization = {}) {
+    const normalizedCustomization = normalizeCustomization(customization);
+    return [
+      Number(productId),
+      normalizedCustomization.wording.toLowerCase(),
+      normalizedCustomization.colorPreference.toLowerCase(),
+    ].join("::");
+  }
+
+  function createCartKey(productId, customization = {}) {
+    return customizationSignature(productId, customization);
+  }
+
+  function findCartEntryByKey(cartKey) {
+    return readCart().find((item) => item.key === cartKey) || null;
+  }
+
+  function findCartEntriesByProduct(productId) {
+    return readCart().filter((item) => item.id === Number(productId));
+  }
+
+  function findCartEntry(productId, customization = null) {
+    if (customization) {
+      const key = createCartKey(productId, customization);
+      return findCartEntryByKey(key);
+    }
+
+    const entries = findCartEntriesByProduct(productId);
+    return entries.length > 0 ? entries[entries.length - 1] : null;
   }
 
   function getCartCount() {
@@ -66,8 +93,7 @@
   }
 
   function getCartItemQuantity(productId) {
-    const entry = findCartEntry(productId);
-    return entry ? entry.quantity : 0;
+    return findCartEntriesByProduct(productId).reduce((sum, item) => sum + item.quantity, 0);
   }
 
   function getCartCustomization(productId) {
@@ -75,32 +101,51 @@
     return normalizeCustomization(entry?.customization);
   }
 
+  function getCartVariant(productId, customization = {}) {
+    const entry = findCartEntry(productId, customization);
+    return entry
+      ? {
+          key: entry.key,
+          quantity: entry.quantity,
+          customization: normalizeCustomization(entry.customization),
+        }
+      : null;
+  }
+
   function addToCart(productId, quantity = 1, customization = {}) {
     const product = findProduct(productId);
     const normalizedCustomization = normalizeCustomization(customization);
+    const cartKey = createCartKey(productId, normalizedCustomization);
 
     if (!product || !product.purchasable || !normalizedCustomization.wording) {
       return;
     }
 
     const cart = readCart();
-    const existing = cart.find((item) => item.id === product.id);
+    const existing = cart.find((item) => item.key === cartKey);
 
     if (existing) {
       existing.quantity += quantity;
       existing.customization = normalizedCustomization;
     } else {
-      cart.push({ id: product.id, quantity, customization: normalizedCustomization });
+      cart.push({
+        key: cartKey,
+        id: product.id,
+        quantity,
+        customization: normalizedCustomization,
+      });
     }
 
     writeCart(cart);
     syncCartCount();
   }
 
-  function updateCartQuantity(productId, quantity) {
+  function updateCartQuantity(cartKey, quantity) {
     const cart = readCart();
     const nextQuantity = Math.max(0, quantity);
-    const index = cart.findIndex((item) => item.id === Number(productId));
+    const index = cart.findIndex(
+      (item) => item.key === cartKey || (item.key == null && item.id === Number(cartKey))
+    );
 
     if (index === -1) {
       return;
@@ -117,9 +162,11 @@
     syncCartCount();
   }
 
-  function updateCartCustomization(productId, customization = {}) {
+  function updateCartCustomization(cartKey, customization = {}) {
     const cart = readCart();
-    const index = cart.findIndex((item) => item.id === Number(productId));
+    const index = cart.findIndex(
+      (item) => item.key === cartKey || (item.key == null && item.id === Number(cartKey))
+    );
 
     if (index === -1) {
       return false;
@@ -131,7 +178,18 @@
       return false;
     }
 
-    cart[index].customization = normalizedCustomization;
+    const nextKey = createCartKey(cart[index].id, normalizedCustomization);
+    const duplicateIndex = cart.findIndex((item, itemIndex) => item.key === nextKey && itemIndex !== index);
+
+    if (duplicateIndex !== -1) {
+      cart[duplicateIndex].quantity += cart[index].quantity;
+      cart[duplicateIndex].customization = normalizedCustomization;
+      cart.splice(index, 1);
+    } else {
+      cart[index].key = nextKey;
+      cart[index].customization = normalizedCustomization;
+    }
+
     writeCart(cart);
     syncCartCount();
     return true;
@@ -152,6 +210,7 @@
 
         return {
           ...product,
+          key: item.key || createCartKey(item.id, item.customization),
           quantity: item.quantity,
           customization: normalizeCustomization(item.customization),
           lineTotal: product.price == null ? null : product.price * item.quantity,
@@ -253,10 +312,9 @@
         ${
           quantity > 0
             ? `
-        <div class="inline-qty" data-product-id="${product.id}">
-          <button class="inline-qty-button" data-action="decrease-cart" data-product-id="${product.id}" type="button" aria-label="Decrease quantity">−</button>
+        <div class="inline-qty inline-qty-summary">
           <span class="inline-qty-count">${quantity} in cart</span>
-          <button class="inline-qty-button" data-action="increase-cart" data-product-id="${product.id}" type="button" aria-label="Increase quantity">+</button>
+          <a class="inline-qty-link" href="./product.html?slug=${encodeURIComponent(product.slug)}">Edit custom details</a>
         </div>
         `
             : `
@@ -303,28 +361,6 @@
           render();
           if (typeof options.afterAdd === "function") {
             options.afterAdd(Number(button.dataset.productId));
-          }
-        });
-      });
-
-      grid.querySelectorAll('[data-action="increase-cart"]').forEach((button) => {
-        button.addEventListener("click", () => {
-          const productId = Number(button.dataset.productId);
-          updateCartQuantity(productId, getCartItemQuantity(productId) + 1);
-          render();
-          if (typeof options.afterAdd === "function") {
-            options.afterAdd(productId);
-          }
-        });
-      });
-
-      grid.querySelectorAll('[data-action="decrease-cart"]').forEach((button) => {
-        button.addEventListener("click", () => {
-          const productId = Number(button.dataset.productId);
-          updateCartQuantity(productId, getCartItemQuantity(productId) - 1);
-          render();
-          if (typeof options.afterAdd === "function") {
-            options.afterAdd(productId);
           }
         });
       });
@@ -433,6 +469,7 @@
     getCartSubtotal,
     getCartItemQuantity,
     syncCartCount,
+    getCartVariant,
     inquiryHref,
     inquiryEmailHref,
     inquiryText,

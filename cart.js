@@ -168,13 +168,13 @@ function renderCartPage() {
     row.querySelectorAll("[data-change]").forEach((button) => {
       button.addEventListener("click", () => {
         const delta = Number(button.dataset.change);
-        AmaraStore.updateCartQuantity(item.id, item.quantity + delta);
+        AmaraStore.updateCartQuantity(item.key, item.quantity + delta);
         renderCartPage();
       });
     });
 
     row.querySelector('[data-remove="true"]').addEventListener("click", () => {
-      AmaraStore.updateCartQuantity(item.id, 0);
+      AmaraStore.updateCartQuantity(item.key, 0);
       renderCartPage();
     });
 
@@ -182,7 +182,7 @@ function renderCartPage() {
       const wording = row.querySelector("[data-wording-input]").value.trim();
       const colorPreference = row.querySelector("[data-color-input]").value.trim();
       const feedback = row.querySelector("[data-customization-feedback]");
-      const saved = AmaraStore.updateCartCustomization(item.id, { wording, colorPreference });
+      const saved = AmaraStore.updateCartCustomization(item.key, { wording, colorPreference });
 
       if (!saved) {
         feedback.textContent = "Preferred wording is required.";

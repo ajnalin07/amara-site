@@ -32,8 +32,12 @@ if (!product) {
 
   function updateInquiryLinks() {
     const customization = readCustomizationInput();
-    detailWhatsApp.href = AmaraStore.inquiryHref(product, customization);
-    detailEmail.href = AmaraStore.inquiryEmailHref(product, customization);
+    const hasWording = Boolean(customization.wording);
+
+    detailWhatsApp.href = hasWording ? AmaraStore.inquiryHref(product, customization) : "#";
+    detailEmail.href = hasWording ? AmaraStore.inquiryEmailHref(product, customization) : "#";
+    detailWhatsApp.classList.toggle("is-disabled", !hasWording);
+    detailEmail.classList.toggle("is-disabled", !hasWording);
   }
 
   function showFeedback(message = "", isError = false) {
@@ -48,7 +52,11 @@ if (!product) {
       return;
     }
 
-    const quantity = AmaraStore.getCartItemQuantity(product.id);
+    const customization = readCustomizationInput();
+    const variant = customization.wording
+      ? AmaraStore.getCartVariant(product.id, customization)
+      : null;
+    const quantity = variant ? variant.quantity : 0;
 
     if (quantity > 0) {
       detailCartControls.innerHTML = `
@@ -65,7 +73,7 @@ if (!product) {
       detailCartControls.querySelectorAll("[data-detail-change]").forEach((button) => {
         button.addEventListener("click", () => {
           const delta = Number(button.dataset.detailChange);
-          AmaraStore.updateCartQuantity(product.id, quantity + delta);
+          AmaraStore.updateCartQuantity(variant.key, quantity + delta);
           showFeedback("");
           renderDetailCartControls();
         });
@@ -108,6 +116,7 @@ if (!product) {
   [detailWording, detailColor].forEach((field) => {
     field.addEventListener("input", () => {
       updateInquiryLinks();
+      renderDetailCartControls();
       if (field === detailWording && detailWording.value.trim()) {
         showFeedback("");
       }
@@ -124,14 +133,29 @@ if (!product) {
     }
 
     if (AmaraStore.getCartItemQuantity(product.id) > 0) {
-      AmaraStore.updateCartCustomization(product.id, customization);
-      showFeedback("Personalisation updated in cart.");
-      renderDetailCartControls();
+      const variant = AmaraStore.getCartVariant(product.id, customization);
+      if (variant) {
+        AmaraStore.updateCartCustomization(variant.key, customization);
+        showFeedback("Personalisation updated in cart.");
+      } else {
+        showFeedback("Details saved for this version. Add it to cart when ready.");
+      }
     } else {
       showFeedback("Details saved for your inquiry. Add the piece to cart when ready.");
     }
 
     updateInquiryLinks();
+    renderDetailCartControls();
+  });
+
+  [detailWhatsApp, detailEmail].forEach((link) => {
+    link.addEventListener("click", (event) => {
+      if (!detailWording.value.trim()) {
+        event.preventDefault();
+        showFeedback("Preferred wording is required before ordering.", true);
+        detailWording.focus();
+      }
+    });
   });
 
   const relatedProducts = AmaraStore.getRelatedProducts(product, 3);
