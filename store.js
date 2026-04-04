@@ -40,7 +40,20 @@
   function readCart() {
     try {
       const parsed = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-      return Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed.map((item) => {
+        const normalizedCustomization = normalizeCustomization(item.customization);
+        return {
+          ...item,
+          id: Number(item.id),
+          quantity: Number(item.quantity) || 0,
+          customization: normalizedCustomization,
+          key: item.key || createCartKey(item.id, normalizedCustomization),
+        };
+      });
     } catch {
       return [];
     }
