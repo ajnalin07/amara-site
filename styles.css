@@ -564,6 +564,10 @@ h3,
   align-items: stretch;
 }
 
+.occasion-strip {
+  margin-top: 36px;
+}
+
 .step-card,
 .occasion-card,
 .support-banner,
