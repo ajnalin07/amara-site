@@ -866,7 +866,22 @@ h3,
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 20px;
+}
+
+.cta-panel > :first-child {
+  flex: 1 1 420px;
+  min-width: 0;
+}
+
+.cta-panel h2 {
+  max-width: 14ch;
+}
+
+.cta-actions {
+  flex: 0 1 auto;
+  justify-content: flex-end;
 }
 
 .site-footer-compact {
