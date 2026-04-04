@@ -34,7 +34,7 @@
       return "Editorial";
     }
 
-    return `$${price}`;
+    return `₹${price}`;
   }
 
   function requiresCustomization(product) {

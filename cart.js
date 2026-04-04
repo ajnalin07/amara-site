@@ -14,8 +14,7 @@ const recommendationsSection = document.querySelector("#cart-recommendations");
 const modalController = AmaraStore.createModalController();
 const toastStack = document.querySelector("#toast-stack");
 
-const FREE_SHIPPING_THRESHOLD = 120;
-const STANDARD_SHIPPING = 8;
+const SINGLE_ITEM_SHIPPING = 100;
 const cartHero = document.querySelector(".page-hero-cart");
 let toastTimer = null;
 
@@ -27,12 +26,12 @@ function escapeAttribute(value) {
     .replaceAll(">", "&gt;");
 }
 
-function calculateShipping(subtotal, itemCount) {
+function calculateShipping(itemCount) {
   if (itemCount === 0) {
     return 0;
   }
 
-  return subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING;
+  return itemCount > 1 ? 0 : SINGLE_ITEM_SHIPPING;
 }
 
 function getCustomization(item) {
@@ -88,7 +87,7 @@ function renderCartPage() {
   const items = AmaraStore.getDetailedCart();
   const subtotal = AmaraStore.getCartSubtotal();
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const shipping = calculateShipping(subtotal, itemCount);
+  const shipping = calculateShipping(itemCount);
   const total = subtotal + shipping;
   const hasMissingWording = items.some((item) => needsWording(item) && !getCustomization(item).wording);
 
@@ -114,12 +113,11 @@ function renderCartPage() {
     shippingMessage.textContent = "Add wording for every piece";
     shippingHelper.textContent = "Preferred wording is mandatory before checkout can continue.";
   } else if (shipping === 0) {
-    shippingMessage.textContent = "Free shipping unlocked";
-    shippingHelper.textContent = "Your order now qualifies for complimentary shipping.";
+    shippingMessage.textContent = "Free delivery unlocked";
+    shippingHelper.textContent = "Delivery is complimentary for 2 or more items.";
   } else {
-    const amountLeft = FREE_SHIPPING_THRESHOLD - subtotal;
-    shippingMessage.textContent = `Free shipping unlocks at ${AmaraStore.formatPrice(FREE_SHIPPING_THRESHOLD)}`;
-    shippingHelper.textContent = `Add ${AmaraStore.formatPrice(amountLeft)} more to unlock complimentary shipping.`;
+    shippingMessage.textContent = `Delivery charge: ${AmaraStore.formatPrice(SINGLE_ITEM_SHIPPING)}`;
+    shippingHelper.textContent = "Add one more item to unlock free delivery.";
   }
 
   items.forEach((item) => {

@@ -373,20 +373,25 @@ h3,
 
 .collection-showcase,
 .merch-strip,
-.shop-guidance {
+.shop-guidance,
+.product-lines-grid,
+.shop-lines {
   display: grid;
   gap: 18px;
   margin-top: 24px;
 }
 
 .collection-showcase,
-.shop-guidance {
+.shop-guidance,
+.product-lines-grid,
+.shop-lines {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .showcase-card,
 .merch-strip article,
-.shop-banner {
+.shop-banner,
+.line-card {
   border-radius: var(--radius-xl);
   border: 1px solid rgba(255, 255, 255, 0.56);
   box-shadow: var(--shadow);
@@ -406,6 +411,51 @@ h3,
   margin: 0 0 12px;
   font-size: clamp(1.75rem, 3.4vw, 2.5rem);
   line-height: 0.98;
+}
+
+.product-lines-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.shop-lines {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.line-card {
+  padding: 24px;
+  background: rgba(255, 250, 246, 0.76);
+  display: grid;
+  gap: 12px;
+}
+
+.line-card h3 {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 0.98;
+}
+
+.line-card p:last-of-type {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.line-card-tote {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.08)),
+    linear-gradient(135deg, rgba(243, 220, 125, 0.44), rgba(216, 235, 184, 0.4), rgba(239, 201, 223, 0.38));
+}
+
+.line-card-scarf {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.1)),
+    linear-gradient(135deg, rgba(239, 201, 223, 0.42), rgba(214, 229, 240, 0.42), rgba(245, 229, 176, 0.38));
+}
+
+.line-card-editorial {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08)),
+    linear-gradient(135deg, rgba(223, 233, 243, 0.42), rgba(244, 223, 148, 0.34), rgba(239, 199, 223, 0.34));
 }
 
 .showcase-card-sun {
@@ -1340,6 +1390,8 @@ h3,
   .hero-highlights,
   .brand-grid,
   .merch-strip,
+  .product-lines-grid,
+  .shop-lines,
   .testimonial-grid,
   .contact-cards,
   .product-grid,
@@ -1390,6 +1442,8 @@ h3,
   .brand-grid,
   .collection-showcase,
   .merch-strip,
+  .product-lines-grid,
+  .shop-lines,
   .shop-guidance,
   .testimonial-grid,
   .contact-cards,
